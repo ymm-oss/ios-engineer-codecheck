@@ -175,7 +175,7 @@ run_importer() {
   PATH="$temporary_dir/bin:$PATH" \
     MOCK_GH_STATE="$temporary_dir/state" \
     MOCK_SLEEP_LOG="$temporary_dir/sleep.log" \
-    GH_REPO="example/duplicate" \
+    GH_REPO="${GH_REPO_OVERRIDE:-example/duplicate}" \
     ASSIGNMENT_SOURCE_SHA="test-source-sha" \
     "$importer" "$@"
 }
@@ -183,6 +183,21 @@ run_importer() {
 run_import() {
   run_importer "$script_dir/import-assignment-issues.sh" "$@"
 }
+
+assert_source_repository_rejected() {
+  source_repository=$1
+  error_log="$temporary_dir/source-repository-error.log"
+
+  if GH_REPO_OVERRIDE="$source_repository" run_import 2> "$error_log"; then
+    echo "Assignment source repository was accepted: $source_repository" >&2
+    exit 1
+  fi
+
+  grep -q '^Refusing to import into the assignment source repository\.$' "$error_log"
+}
+
+assert_source_repository_rejected "yumemi-inc/ios-engineer-codecheck"
+assert_source_repository_rejected "ymm-oss/ios-engineer-codecheck"
 
 run_import
 

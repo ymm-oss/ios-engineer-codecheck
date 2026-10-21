@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   import:
-    if: github.repository != 'yumemi-inc/ios-engineer-codecheck'
+    if: github.repository_id != '257265831'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7

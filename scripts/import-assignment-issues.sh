@@ -122,10 +122,17 @@ if [[ -z "$target_repo" ]]; then
   target_repo=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
 fi
 
-if [[ "$target_repo" == "yumemi-inc/ios-engineer-codecheck" ]]; then
-  echo "Refusing to import into the assignment source repository." >&2
-  exit 1
-fi
+assignment_source_repositories=(
+  "yumemi-inc/ios-engineer-codecheck"
+  "ymm-oss/ios-engineer-codecheck"
+)
+
+for source_repository in "${assignment_source_repositories[@]}"; do
+  if [[ "$target_repo" == "$source_repository" ]]; then
+    echo "Refusing to import into the assignment source repository." >&2
+    exit 1
+  fi
+done
 
 assignment_version=$(jq -r '.assignment_version' "$manifest")
 source_sha="${ASSIGNMENT_SOURCE_SHA:-$(git -C "$repository_root" rev-parse HEAD)}"
